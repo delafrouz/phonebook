@@ -6,6 +6,17 @@ class User(models.Model):
     last_name = models.CharField(max_length=80)
     user_id = models.IntegerField(primary_key=True)
 
+    def __str__(self):
+        return '{} {}'.format(self.first_name, self.last_name)
+
+    def add_user(self, first_name: str, last_name: str):
+        # TODO add a new user
+        pass
+
+    def add_contact(self):
+        # TODO add the contact in the contact table, get its id and add it in the connection table
+        pass
+
 
 class Contact(models.Model):
     first_name = models.CharField(max_length=80)
@@ -16,3 +27,21 @@ class Contact(models.Model):
     address = models.CharField(max_length=80)
     secondary_phone_number = models.CharField(max_length=80)
     job = models.CharField(max_length=20)
+    middle_name = models.CharField(max_length=80, default='')
+
+    def __str__(self):
+        return '{} {}: {} <{}>'.format(self.first_name, self.last_name, self.phone_number, self.email)
+
+    def add_contact(self, first_name: str, last_name: str, phone_number: str, email: str,
+                    address: str = '', secondary_phone_number: str = '', job: str = '', middle_name: str = ''):
+        # TODO add a contact in the table and return its id
+        pass
+
+
+class Connection(models.Model):
+    user_id = models.IntegerField()
+    contact_id = models.IntegerField()
+
+    def add_connection(self, user_id: int, contact_id: int):
+        # TODO add a new connection
+        pass
