@@ -1,12 +1,17 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.http.request import HttpRequest
+from .models import User, Contact, Connection
+from .serializers import UserSerializer, ContactSerializer
+from rest_framework.decorators import api_view
 
 
 class PhonebookView:
     @staticmethod
+    @api_view(['GET'])
     def view_all_phonebook(request: HttpRequest):
-        # TODO get all profiles
-        return HttpResponse('this is the whole phonebook')
+        all_users = User.get_all_users()
+        user_serializer = UserSerializer(all_users, many=True)
+        return JsonResponse({'phonebook_users': user_serializer.data})
 
     @staticmethod
     def view_user_phonebook(request: HttpRequest, user_id: int):

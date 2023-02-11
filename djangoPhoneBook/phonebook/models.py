@@ -18,7 +18,7 @@ class User(models.Model):
         pass
 
     @staticmethod
-    def get_whole_phonebook() -> ['User']:
+    def get_all_users() -> ['User']:
         return User.objects.all()
 
 
