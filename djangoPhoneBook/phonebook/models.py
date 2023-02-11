@@ -17,6 +17,10 @@ class User(models.Model):
         # TODO add the contact in the contact table, get its id and add it in the connection table
         pass
 
+    @staticmethod
+    def get_whole_phonebook() -> ['User']:
+        return User.objects.all()
+
 
 class Contact(models.Model):
     first_name = models.CharField(max_length=80)
