@@ -42,17 +42,41 @@ class Contact(models.Model):
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
     phone_number = models.CharField(max_length=20)
-    email = models.CharField(max_length=80)
-    address = models.CharField(max_length=80)
-    secondary_phone_number = models.CharField(max_length=80)
-    job = models.CharField(max_length=20)
-    middle_name = models.CharField(max_length=80, default='')
+    email = models.CharField(max_length=80, null=True)
+    address = models.CharField(max_length=80, null=True)
+    secondary_phone_number = models.CharField(max_length=80, null=True)
+    job = models.CharField(max_length=20, null=True)
+    middle_name = models.CharField(max_length=80, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return '{} {}: {} <{}>'.format(self.first_name, self.last_name, self.phone_number, self.email)
 
-    def add_contact(self, first_name: str, last_name: str, phone_number: str, email: str,
-                    address: str = '', secondary_phone_number: str = '', job: str = '', middle_name: str = ''):
-        # TODO add a contact in the table and return its id
-        pass
+    @staticmethod
+    def get_contact(user_id: int, contact_id: int) -> 'Contact':
+        user = User.get_user(user_id)
+        contact = user.contact_set.get(id=contact_id)
+        return contact
+
+    @staticmethod
+    def update_contact(user_id: int, contact_id: int, data: dict) -> 'Contact':
+        contact = User.get_user(user_id).contact_set.get(id=contact_id)
+        for key in data:
+            setattr(contact, key, data[key])
+        contact.save()
+        return contact
+
+    @staticmethod
+    def delete_contact(user_id: int, contact_id: int) -> 'Contact':
+        contact = User.get_user(user_id).contact_set.all().get(id=contact_id)
+        contact.delete()
+        return contact
+
+    @staticmethod
+    def get_all_contacts(user_id: int) -> ['Contact']:
+        return User.get_user(user_id).contact_set.all()
+
+    @staticmethod
+    def add_contact(user_id: int, data: dict) -> 'Contact':
+        contact = Contact.objects.create(**data, user_id=user_id)
+        return contact
