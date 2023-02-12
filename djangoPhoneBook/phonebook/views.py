@@ -22,20 +22,20 @@ class PhonebookView:
 
 class UserView:
     @staticmethod
-    @api_view(['GET', 'DELETE'])
+    @api_view(['GET', 'DELETE', 'PUT'])
     def view_profile_by_id(request: Request, user_id) -> JsonResponse:
         if request.method == 'GET':
             return UserView.get_user(user_id)
         if request.method == 'DELETE':
             return UserView.delete_user(user_id)
+        if request.method == 'PUT':
+            return UserView.update_user(user_id, request.data)
 
     @staticmethod
-    @api_view(['POST', 'PUT'])
+    @api_view(['POST'])
     def view_profile(request: Request) -> JsonResponse:
         if request.method == 'POST':
             return UserView.add_user(request.data)
-        if request.method == 'PUT':
-            return UserView.update_user(request.data)
 
     @staticmethod
     def get_user(user_id: int) -> JsonResponse:
@@ -51,9 +51,10 @@ class UserView:
 
 
     @staticmethod
-    def update_user(request: HttpRequest) -> JsonResponse:
-        # TODO update user
-        pass
+    def update_user(user_id: int, data: dict) -> JsonResponse:
+        user = User.update_user(user_id, data)
+        user_serializer = UserSerializer(user)
+        return JsonResponse({'user': user_serializer.data})
 
     @staticmethod
     def delete_user(user_id: int) -> JsonResponse:

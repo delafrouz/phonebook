@@ -20,6 +20,14 @@ class User(models.Model):
         return user
 
     @staticmethod
+    def update_user(user_id: int, data: dict) -> 'User':
+        user = User.objects.get(id=user_id)
+        first_name = data.get('first_name', user.first_name)
+        last_name = data.get('last_name', user.last_name)
+        User.objects.filter(id=user_id).update(first_name=first_name, last_name=last_name)
+        return User.objects.get(id=user_id)
+
+    @staticmethod
     def delete_user(user_id: int) -> 'User':
         user = User.objects.get(id=user_id)
         user.delete()
