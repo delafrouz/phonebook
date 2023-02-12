@@ -21,27 +21,41 @@ class PhonebookView:
 
 class UserView:
     @staticmethod
-    def view_profile(request: HttpRequest):
-        # TODO handle all CRUD operations for User
-        pass
+    @api_view(['GET', 'DELETE'])
+    def view_profile_by_id(request: HttpRequest, user_id) -> JsonResponse:
+        if request.method == 'GET':
+            return UserView.get_user(user_id)
+        if request.method == 'DELETE':
+            return UserView.delete_user(user_id)
 
     @staticmethod
-    def get_user(request: HttpRequest):
-        # TODO get user by id
-        pass
+    @api_view(['POST', 'PUT'])
+    def view_profile(request: HttpRequest) -> JsonResponse:
+        if request.method == 'POST':
+            return UserView.add_user(request.data)
+        if request.method == 'PUT':
+            return UserView.update_user(request.data)
 
     @staticmethod
-    def add_user(request: HttpRequest):
-        # TODO add new user
-        pass
+    def get_user(user_id) -> JsonResponse:
+        user = User.get_user(user_id)
+        user_serializer = UserSerializer(user)
+        return JsonResponse({'user': user_serializer.data})
 
     @staticmethod
-    def update_user(request: HttpRequest):
+    def add_user(data: dict) -> JsonResponse:
+        user = User.add_user(data)
+        user_serializer = UserSerializer(user)
+        return JsonResponse({'user': user_serializer.data})
+
+
+    @staticmethod
+    def update_user(request: HttpRequest) -> JsonResponse:
         # TODO update user
         pass
 
     @staticmethod
-    def delete_user(request: HttpRequest):
+    def delete_user(user_id) -> JsonResponse:
         # TODO delete user
         pass
 

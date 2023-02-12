@@ -9,9 +9,18 @@ class User(models.Model):
     def __str__(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
-    def add_user(self, first_name: str, last_name: str):
-        # TODO add a new user
-        pass
+    @staticmethod
+    def get_user(user_id: int):
+        return User.objects.get(user_id=user_id)
+
+    @staticmethod
+    def add_user(data: dict) -> 'User':
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+        user_id = data.get('user_id', 0)
+        user = User(first_name, last_name, user_id)
+        user.save()
+        return user
 
     def add_contact(self):
         # TODO add the contact in the contact table, get its id and add it in the connection table
