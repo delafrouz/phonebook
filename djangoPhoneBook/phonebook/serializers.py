@@ -6,7 +6,7 @@ from djangoPhoneBook.phonebook.models import User, Contact
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'user_id']
+        fields = ['first_name', 'last_name', 'id']
 
 
 class ContactSerializer(serializers.HyperlinkedModelSerializer):

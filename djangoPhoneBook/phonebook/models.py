@@ -4,22 +4,21 @@ from django.db import models
 class User(models.Model):
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
-    user_id = models.IntegerField(primary_key=True)
 
     def __str__(self):
         return '{} {}'.format(self.first_name, self.last_name)
 
     @staticmethod
     def get_user(user_id: int):
-        return User.objects.get(user_id=user_id)
+        return User.objects.get(id=user_id)
 
     @staticmethod
     def add_user(data: dict) -> 'User':
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
-        user_id = data.get('user_id', 0)
-        user = User(first_name, last_name, user_id)
-        user.save()
+        user = User.objects.create(first_name=first_name, last_name=last_name)
+        # user = User(first_name, last_name)
+        # user.create()
         return user
 
     def add_contact(self):
@@ -34,7 +33,6 @@ class User(models.Model):
 class Contact(models.Model):
     first_name = models.CharField(max_length=80)
     last_name = models.CharField(max_length=80)
-    id = models.IntegerField(primary_key=True)
     phone_number = models.CharField(max_length=20)
     email = models.CharField(max_length=80)
     address = models.CharField(max_length=80)
