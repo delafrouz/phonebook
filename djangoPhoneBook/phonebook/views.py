@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
 from django.http.request import HttpRequest
-from .models import User, Contact, Connection
+from .models import User, Contact
 from .serializers import UserSerializer, ContactSerializer
 from rest_framework.decorators import api_view
 from rest_framework.request import Request

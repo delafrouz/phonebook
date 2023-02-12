@@ -47,6 +47,7 @@ class Contact(models.Model):
     secondary_phone_number = models.CharField(max_length=80)
     job = models.CharField(max_length=20)
     middle_name = models.CharField(max_length=80, default='')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return '{} {}: {} <{}>'.format(self.first_name, self.last_name, self.phone_number, self.email)
@@ -54,13 +55,4 @@ class Contact(models.Model):
     def add_contact(self, first_name: str, last_name: str, phone_number: str, email: str,
                     address: str = '', secondary_phone_number: str = '', job: str = '', middle_name: str = ''):
         # TODO add a contact in the table and return its id
-        pass
-
-
-class Connection(models.Model):
-    user_id = models.IntegerField()
-    contact_id = models.IntegerField()
-
-    def add_connection(self, user_id: int, contact_id: int):
-        # TODO add a new connection
         pass
