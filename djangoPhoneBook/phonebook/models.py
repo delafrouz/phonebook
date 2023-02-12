@@ -17,13 +17,13 @@ class User(models.Model):
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
         user = User.objects.create(first_name=first_name, last_name=last_name)
-        # user = User(first_name, last_name)
-        # user.create()
         return user
 
-    def add_contact(self):
-        # TODO add the contact in the contact table, get its id and add it in the connection table
-        pass
+    @staticmethod
+    def delete_user(user_id: int) -> 'User':
+        user = User.objects.get(id=user_id)
+        user.delete()
+        return user
 
     @staticmethod
     def get_all_users() -> ['User']:
