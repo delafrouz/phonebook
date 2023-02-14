@@ -78,5 +78,39 @@ class Contact(models.Model):
 
     @staticmethod
     def add_contact(user_id: int, data: dict) -> 'Contact':
+        # TODO is this correct? should I pass the user object or user_id is enough?
         contact = Contact.objects.create(**data, user_id=user_id)
         return contact
+
+
+class Tag(models.Model):
+    name = models.CharField(max_length=40)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    contact = models.ManyToManyField(Contact)
+
+    @staticmethod
+    def get_tags_of_user(user_id: int) -> ['Tag']:
+        tags = Tag.objects.filter(user_id=user_id)
+        return tags
+
+    @staticmethod
+    def get_tagged_contacts(user_id: int, tag_name: str) -> [Contact]:
+        contacts = Contact.objects.filter(tag__user_id=user_id, tag__name__contains=tag_name)
+        return contacts
+
+    @staticmethod
+    def get_contacts_and_tags(user_id: int) -> [(Contact, ['Tag'])]:
+        contacts = Contact.objects.filter(user_id=user_id)
+        contacts_and_tags_list = []
+        for contact in contacts:
+            tags = Tag.objects.filter(contact__in=[contact.id])
+            contacts_and_tags_list.append((contact, tags))
+        return contacts_and_tags_list
+
+    @staticmethod
+    def tag_contact(user_id: int, contact_id: int, tag_name: str) -> (Contact, 'Tag'):
+        user = User.get_user(user_id)
+        tag_name = tag_name or '{}\'s new tag'.format(user.first_name)
+        tag = Tag.objects.get_or_create(name=tag_name, user_id=user_id)[0]
+        tag.contact.add(contact_id)
+        return Contact.objects.get(id=contact_id), tag

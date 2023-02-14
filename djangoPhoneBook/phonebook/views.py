@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse
-from .models import User, Contact
-from .serializers import UserSerializer, ContactSerializer
+from .models import User, Contact, Tag
+from .serializers import UserSerializer, ContactSerializer, TagSerializer
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 
@@ -109,3 +109,49 @@ class ContactView:
         contact = Contact.add_contact(user_id, data)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data})
+
+
+class TagView:
+    @staticmethod
+    @api_view(['GET'])
+    def get_tags_of_user(request: Request, user_id: int) -> JsonResponse:
+        tags = Tag.get_tags_of_user(user_id)
+        tag_serializer = TagSerializer(tags, many=True)
+        user_serializer = UserSerializer(User.get_user(user_id))
+        return JsonResponse({'user': user_serializer.data, 'tags': tag_serializer.data})
+
+    @staticmethod
+    @api_view(['GET'])
+    def get_tagged_contacts(request: Request, user_id: int, tag_name: str) -> JsonResponse:
+        contacts = Tag.get_tagged_contacts(user_id, tag_name)
+        contact_serializer = ContactSerializer(contacts, many=True)
+        user_serializer = UserSerializer(User.get_user(user_id))
+        return JsonResponse({'user': user_serializer.data, 'tag': tag_name, 'contacts': contact_serializer.data})
+
+    @staticmethod
+    @api_view(['GET', 'POST'])
+    def tag_contact_view(request: Request, user_id: int) -> JsonResponse:
+        if request.method == 'GET':
+            return TagView.get_contacts_and_tags(user_id)
+        if request.method == 'POST':
+            return TagView.tag_contact(request.data, user_id)
+
+    @staticmethod
+    def get_contacts_and_tags(user_id: int) -> JsonResponse:
+        contacts_and_tags = Tag.get_contacts_and_tags(user_id)
+        user_serializer = UserSerializer(User.get_user(user_id))
+        response = []
+        for contact_and_tags in contacts_and_tags:
+            contact_serializer = ContactSerializer(contact_and_tags[0])
+            tags_serializer = TagSerializer(contact_and_tags[1], many=True)
+            response.append({'contact': contact_serializer.data, 'tags': tags_serializer.data})
+        return JsonResponse({'user': user_serializer.data, 'contacts_and_tags': response})
+
+    @staticmethod
+    def tag_contact(data: dict, user_id: int) -> JsonResponse:
+        contact_id = data.get('contact_id')
+        tag_name = data.get('tag_name', '')
+        contact, tag = Tag.tag_contact(user_id, contact_id, tag_name)
+        tag_serializer = TagSerializer(tag)
+        contact_serializer = ContactSerializer(contact)
+        return JsonResponse({'contact': contact_serializer.data, 'tag': tag_serializer.data})
