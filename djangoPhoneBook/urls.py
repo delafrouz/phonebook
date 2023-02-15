@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('phonebook/', include('djangoPhoneBook.phonebook.urls')),
+    path('login/', include('rest_framework.urls')),
 ]

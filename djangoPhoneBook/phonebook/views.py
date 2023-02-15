@@ -1,5 +1,7 @@
-from django.http import HttpResponse, JsonResponse
-from .models import User, Contact, Tag
+from django.http import JsonResponse
+
+from .controllers import UserController
+from .models import Contact, Tag
 from .serializers import UserSerializer, ContactSerializer, TagSerializer
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
@@ -9,14 +11,9 @@ class PhonebookView:
     @staticmethod
     @api_view(['GET'])
     def view_all_phonebook(request: Request):
-        all_users = User.get_all_users()
+        all_users = UserController.get_all_users()
         user_serializer = UserSerializer(all_users, many=True)
         return JsonResponse({'phonebook_users': user_serializer.data})
-
-    @staticmethod
-    def view_user_phonebook(request: Request, user_id: int):
-        # TODO get one users contacts
-        return HttpResponse('this is one persons phonebook at id={}'.format(user_id))
 
 
 class UserView:
@@ -38,25 +35,25 @@ class UserView:
 
     @staticmethod
     def get_user(user_id: int) -> JsonResponse:
-        user = User.get_user(user_id)
+        user = UserController.get_user(user_id)
         user_serializer = UserSerializer(user)
         return JsonResponse({'user': user_serializer.data})
 
     @staticmethod
     def update_user(user_id: int, data: dict) -> JsonResponse:
-        user = User.update_user(user_id, data)
+        user = UserController.update_user(user_id, data)
         user_serializer = UserSerializer(user)
         return JsonResponse({'user': user_serializer.data})
 
     @staticmethod
     def delete_user(user_id: int) -> JsonResponse:
-        user = User.delete_user(user_id)
+        user = UserController.delete_user(user_id)
         user_serializer = UserSerializer(user)
         return JsonResponse({'user': user_serializer.data})
 
     @staticmethod
     def add_user(data: dict) -> JsonResponse:
-        user = User.add_user(data)
+        user = UserController.add_user(data)
         user_serializer = UserSerializer(user)
         return JsonResponse({'user': user_serializer.data})
 
@@ -117,7 +114,7 @@ class TagView:
     def get_tags_of_user(request: Request, user_id: int) -> JsonResponse:
         tags = Tag.get_tags_of_user(user_id)
         tag_serializer = TagSerializer(tags, many=True)
-        user_serializer = UserSerializer(User.get_user(user_id))
+        user_serializer = UserSerializer(UserController.get_user(user_id=user_id))
         return JsonResponse({'user': user_serializer.data, 'tags': tag_serializer.data})
 
     @staticmethod
@@ -125,7 +122,7 @@ class TagView:
     def get_tagged_contacts(request: Request, user_id: int, tag_name: str) -> JsonResponse:
         contacts = Tag.get_tagged_contacts(user_id, tag_name)
         contact_serializer = ContactSerializer(contacts, many=True)
-        user_serializer = UserSerializer(User.get_user(user_id))
+        user_serializer = UserSerializer(UserController.get_user(user_id=user_id))
         return JsonResponse({'user': user_serializer.data, 'tag': tag_name, 'contacts': contact_serializer.data})
 
     @staticmethod
@@ -139,7 +136,7 @@ class TagView:
     @staticmethod
     def get_contacts_and_tags(user_id: int) -> JsonResponse:
         contacts_and_tags = Tag.get_contacts_and_tags(user_id)
-        user_serializer = UserSerializer(User.get_user(user_id))
+        user_serializer = UserSerializer(UserController.get_user(user_id=user_id))
         response = []
         for contact_and_tags in contacts_and_tags:
             contact_serializer = ContactSerializer(contact_and_tags[0])
