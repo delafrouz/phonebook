@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db.models.query import QuerySet
+from django.contrib.auth.hashers import make_password
 
 
 class UserController:
@@ -9,7 +10,9 @@ class UserController:
 
     @staticmethod
     def add_user(data: dict) -> User:
-        user = User.objects.create(data)
+        hashed_password = make_password(data.get('password', '{}_password'.format(data.get('username'))))
+        data = {**data, 'password': hashed_password}
+        user = User.objects.create(**data, is_superuser=True)
         return user
 
     @staticmethod
