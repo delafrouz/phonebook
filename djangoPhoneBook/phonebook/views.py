@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 
-from .controllers import UserController
-from .models import Contact, Tag
+from .controllers import UserController, ContactController, TagController
 from .serializers import UserSerializer, ContactSerializer, TagSerializer
 from rest_framework.request import Request
 from rest_framework.views import APIView
@@ -40,36 +39,36 @@ class UserView(APIView):
 
 class ContactDetailView(APIView):
     def get(self, request: Request, user_id: int, contact_id: int) -> JsonResponse:
-        contact = Contact.get_contact(user_id, contact_id)
+        contact = ContactController.get_contact(user_id, contact_id)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data})
 
     def put(self, request: Request, user_id: int, contact_id: int) -> JsonResponse:
-        contact = Contact.update_contact(user_id, contact_id, request.data)
+        contact = ContactController.update_contact(user_id, contact_id, request.data)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data})
 
     def delete(self, request: Request, user_id: int, contact_id: int) -> JsonResponse:
-        contact = Contact.delete_contact(user_id, contact_id)
+        contact = ContactController.delete_contact(user_id, contact_id)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data})
 
 
 class ContactView(APIView):
     def get(self, request: Request, user_id: int) -> JsonResponse:
-        all_contacts = Contact.get_all_contacts(user_id)
+        all_contacts = ContactController.get_all_contacts(user_id)
         contact_serializer = ContactSerializer(all_contacts, many=True)
         return JsonResponse({'phonebook_contacts': contact_serializer.data})
 
     def post(self, request: Request, user_id: int) -> JsonResponse:
-        contact = Contact.add_contact(user_id, request.data)
+        contact = ContactController.add_contact(user_id, request.data)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data})
 
 
 class TagView(APIView):
     def get(self, request: Request, user_id: int) -> JsonResponse:
-        tags = Tag.get_tags_of_user(user_id)
+        tags = TagController.get_tags_of_user(user_id)
         tag_serializer = TagSerializer(tags, many=True)
         user_serializer = UserSerializer(UserController.get_user(user_id=user_id))
         return JsonResponse({'user': user_serializer.data, 'tags': tag_serializer.data})
@@ -77,7 +76,7 @@ class TagView(APIView):
     def post(self, request: Request, user_id: int) -> JsonResponse:
         contact_id = request.data.get('contact_id')
         tag_name = request.data.get('tag_name', '')
-        contact, tag = Tag.tag_contact(user_id, contact_id, tag_name)
+        contact, tag = TagController.tag_contact(user_id, contact_id, tag_name)
         tag_serializer = TagSerializer(tag)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data, 'tag': tag_serializer.data})
@@ -85,7 +84,7 @@ class TagView(APIView):
 
 class TagDetailView(APIView):
     def get(self, request: Request, user_id: int, tag_name: str) -> JsonResponse:
-        contacts = Tag.get_tagged_contacts(user_id, tag_name)
+        contacts = TagController.get_tagged_contacts(user_id, tag_name)
         contact_serializer = ContactSerializer(contacts, many=True)
         user_serializer = UserSerializer(UserController.get_user(user_id=user_id))
         return JsonResponse({'user': user_serializer.data, 'tag': tag_name, 'contacts': contact_serializer.data})
@@ -93,7 +92,7 @@ class TagDetailView(APIView):
 
 class TagAndContactView(APIView):
     def get(self, request: Request, user_id: int) -> JsonResponse:
-        contacts_and_tags = Tag.get_contacts_and_tags(user_id)
+        contacts_and_tags = TagController.get_contacts_and_tags(user_id)
         user_serializer = UserSerializer(UserController.get_user(user_id=user_id))
         response = []
         for contact_and_tags in contacts_and_tags:
