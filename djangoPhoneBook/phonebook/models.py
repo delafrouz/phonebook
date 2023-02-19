@@ -12,7 +12,7 @@ class Contact(models.Model):
     secondary_phone_number = models.CharField(max_length=80, null=True)
     job = models.CharField(max_length=20, null=True)
     middle_name = models.CharField(max_length=80, null=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', related_name='contacts', on_delete=models.CASCADE)
 
     def __str__(self):
         return '{} {}: {} <{}>'.format(self.first_name, self.last_name, self.phone_number, self.email)
@@ -20,5 +20,5 @@ class Contact(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=40)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey('auth.User', related_name='tags', on_delete=models.CASCADE)
     contact = models.ManyToManyField(Contact)

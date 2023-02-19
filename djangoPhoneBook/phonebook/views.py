@@ -4,6 +4,7 @@ from .controllers import UserController, ContactController, TagController
 from .serializers import UserSerializer, ContactSerializer, TagSerializer
 from rest_framework.request import Request
 from rest_framework.views import APIView
+from rest_framework import permissions
 
 
 class PhonebookView(APIView):
@@ -20,12 +21,12 @@ class UserDetailView(APIView):
         return JsonResponse({'user': user_serializer.data})
 
     def put(self, request: Request, user_id: int) -> JsonResponse:
-        user = UserController.update_user(user_id, request.data)
+        user = UserController.update_user(self.request.user, request.data)
         user_serializer = UserSerializer(user)
         return JsonResponse({'user': user_serializer.data})
 
     def delete(self, request: Request, user_id: int) -> JsonResponse:
-        user = UserController.delete_user(user_id)
+        user = UserController.delete_user(self.request.user)
         user_serializer = UserSerializer(user)
         return JsonResponse({'user': user_serializer.data})
 
@@ -44,12 +45,12 @@ class ContactDetailView(APIView):
         return JsonResponse({'contact': contact_serializer.data})
 
     def put(self, request: Request, user_id: int, contact_id: int) -> JsonResponse:
-        contact = ContactController.update_contact(user_id, contact_id, request.data)
+        contact = ContactController.update_contact(self.request.user, contact_id, request.data)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data})
 
     def delete(self, request: Request, user_id: int, contact_id: int) -> JsonResponse:
-        contact = ContactController.delete_contact(user_id, contact_id)
+        contact = ContactController.delete_contact(self.request.user, contact_id)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data})
 
@@ -61,12 +62,14 @@ class ContactView(APIView):
         return JsonResponse({'phonebook_contacts': contact_serializer.data})
 
     def post(self, request: Request, user_id: int) -> JsonResponse:
-        contact = ContactController.add_contact(user_id, request.data)
+        contact = ContactController.add_contact(self.request.user, request.data)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data})
 
 
 class TagView(APIView):
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
     def get(self, request: Request, user_id: int) -> JsonResponse:
         tags = TagController.get_tags_of_user(user_id)
         tag_serializer = TagSerializer(tags, many=True)
@@ -76,7 +79,7 @@ class TagView(APIView):
     def post(self, request: Request, user_id: int) -> JsonResponse:
         contact_id = request.data.get('contact_id')
         tag_name = request.data.get('tag_name', '')
-        contact, tag = TagController.tag_contact(user_id, contact_id, tag_name)
+        contact, tag = TagController.tag_contact(self.request.user, contact_id, tag_name)
         tag_serializer = TagSerializer(tag)
         contact_serializer = ContactSerializer(contact)
         return JsonResponse({'contact': contact_serializer.data, 'tag': tag_serializer.data})

@@ -18,13 +18,13 @@ class UserController:
         return user
 
     @staticmethod
-    def update_user(user_id: int, data: dict) -> User:
-        User.objects.filter(id=user_id).update(**data)
-        return User.objects.get(id=user_id)
+    def update_user(user: User, data: dict) -> User:
+        User.objects.filter(id=user.id).update(**data)
+        return User.objects.get(id=user.id)
 
     @staticmethod
-    def delete_user(user_id: int) -> User:
-        user = User.objects.get(id=user_id)
+    def delete_user(user: User) -> User:
+        user = User.objects.get(id=user.id)
         user.delete()
         return user
 
@@ -40,16 +40,16 @@ class ContactController:
         return contact
 
     @staticmethod
-    def update_contact(user_id: int, contact_id: int, data: dict) -> 'Contact':
-        contact = Contact.objects.get(user_id=user_id, id=contact_id)
+    def update_contact(user: User, contact_id: int, data: dict) -> 'Contact':
+        contact = Contact.objects.get(user=user, id=contact_id)
         for key in data:
             setattr(contact, key, data[key])
         contact.save()
         return contact
 
     @staticmethod
-    def delete_contact(user_id: int, contact_id: int) -> 'Contact':
-        contact = Contact.objects.get(user_id=user_id, id=contact_id)
+    def delete_contact(user: User, contact_id: int) -> 'Contact':
+        contact = Contact.objects.get(user=user, id=contact_id)
         contact.delete()
         return contact
 
@@ -58,9 +58,9 @@ class ContactController:
         return Contact.objects.filter(user_id=user_id)
 
     @staticmethod
-    def add_contact(user_id: int, data: dict) -> 'Contact':
+    def add_contact(user, data: dict) -> 'Contact':
         # TODO is this correct? should I pass the user object or user_id is enough?
-        contact = Contact.objects.create(**data, user_id=user_id)
+        contact = Contact.objects.create(user=user, **data)
         return contact
 
 
@@ -85,9 +85,8 @@ class TagController:
         return contacts_and_tags_list
 
     @staticmethod
-    def tag_contact(user_id: int, contact_id: int, tag_name: str) -> (Contact, 'Tag'):
-        user = User.objects.get(id=user_id)
+    def tag_contact(user: User, contact_id: int, tag_name: str) -> (Contact, 'Tag'):
         tag_name = tag_name or '{}\'s new tag'.format(user.first_name)
-        tag = Tag.objects.get_or_create(name=tag_name, user_id=user_id)[0]
+        tag = Tag.objects.get_or_create(name=tag_name, user=user)[0]
         tag.contact.add(contact_id)
         return Contact.objects.get(id=contact_id), tag
